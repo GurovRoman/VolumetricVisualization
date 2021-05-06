@@ -3,24 +3,47 @@ project(VolumetricRayMarching)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
 set(glfw3_DIR ${CMAKE_CURRENT_LIST_DIR}/glfw)
+add_subdirectory(glfwm)
 
-add_subdirectory(glfwm ${${PROJECT_NAME}_BINARY_DIR}/glfwm)
-
-add_compile_options(-O3)
-
-add_executable(VolumetricRayMarching
-        main.cpp
-        math.cpp
-        Camera.cpp
-        Scene.cpp
-        glad/src/glad.c Volume.cpp Volume.h)
+add_subdirectory(glm)
 
 
-target_link_libraries(VolumetricRayMarching glfwm)
+add_executable(
+        VolumetricRayMarching
+        glad/src/glad.c)
 
-find_package(OpenGL REQUIRED)
-target_link_libraries(VolumetricRayMarching OpenGL::GL)
+add_subdirectory(src)
 
-target_include_directories(VolumetricRayMarching PUBLIC glad/include)
+target_include_directories(VolumetricRayMarching PRIVATE glad/include)
+
+add_custom_target(
+        resource
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/models
+        ${CMAKE_CURRENT_BINARY_DIR}/models
+        #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/volumes
+        #${CMAKE_CURRENT_BINARY_DIR}/volumes
+)
+
+add_dependencies(VolumetricRayMarching resource)
+
+
+
+target_include_directories(VolumetricRayMarching PRIVATE imgui)
+target_sources(
+        VolumetricRayMarching PRIVATE
+        imgui/imgui.cpp
+        imgui/imgui_draw.cpp
+        imgui/imgui_demo.cpp
+        imgui/imgui_tables.cpp
+        imgui/imgui_widgets.cpp
+        imgui/backends/imgui_impl_glfw.cpp
+        imgui/backends/imgui_impl_opengl3.cpp)
+
+add_compile_definitions(IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS)
+
+add_compile_definitions(VGIZMO_USES_GLM)
+
+add_compile_definitions(FAST_OBJ_IMPLEMENTATION)
