@@ -39,6 +39,11 @@ void VolumePass::run() {
     volume_program_.setUniformVec3("sunColor", Parameters::get().at<glm::vec3>("sunColor")[0]);
     volume_program_.setUniform1("sunIntensity", Parameters::get().at<float>("sunIntensity"));
 
+    volume_program_.setUniformMat4("sunShadowmap.VP", Parameters::get().at<glm::mat4>("sunShadowVPMatrix")[0][0]);
+
+    volume_program_.setUniform1i("sunShadowmap.depthTex", 2);
+    Parameters::get().at<TexturePtr>("sunShadowmap")->BindToTextureUnit(2);
+
 
     volume_program_.setUniform1i("vol.samples", volumes_->samples);
     volume_program_.setUniform1i("vol.shadow_samples", volumes_->shadow_samples);

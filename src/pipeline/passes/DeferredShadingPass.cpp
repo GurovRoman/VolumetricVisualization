@@ -26,6 +26,12 @@ void DeferredShadingPass::run() {
     deferrred_program_.setUniformVec3("sunColor", Parameters::get().at<glm::vec3>("sunColor")[0]);
     deferrred_program_.setUniform1("sunIntensity", Parameters::get().at<float>("sunIntensity"));
 
+    deferrred_program_.setUniformMat4("sunShadowmap.VP", Parameters::get().at<glm::mat4>("sunShadowVPMatrix")[0][0]);
+
+    deferrred_program_.setUniform1i("sunShadowmap.depthTex", 4);
+    Parameters::get().at<TexturePtr>("sunShadowmap")->BindToTextureUnit(4);
+
+
     deferrred_program_.setUniform1i("vol.density", 3);
     volumes_->getDensityTex3D()->BindToTextureUnit(3);
 

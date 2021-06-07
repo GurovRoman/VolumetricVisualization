@@ -24,7 +24,7 @@ public:
     }
 
 private:
-    std::shared_ptr<std::vector<Mesh>> meshes_ {std::make_shared<std::vector<Mesh>>()};
+    std::shared_ptr<std::vector<std::shared_ptr<Mesh>>> meshes_ {std::make_shared<std::vector<std::shared_ptr<Mesh>>>()};
     std::shared_ptr<Camera> camera_ {std::make_shared<Camera>()};
     std::shared_ptr<Volume> volumes_ {std::make_shared<Volume>()};
 

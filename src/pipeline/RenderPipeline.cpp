@@ -25,6 +25,7 @@ void RenderPipeline::run() {
     final_fb_->clear();
 
     opaque_.run();
+    shadowmap_.run();
     deferred_.run();
     volume_.run();
     postprocess_.run();
@@ -36,4 +37,6 @@ void RenderPipeline::run() {
     Framebuffer::getDefaultFramebuffer()->bind(GL_DRAW_FRAMEBUFFER);
     glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+    // Needed for OBS to capture correct framebuffer
+    Framebuffer::getDefaultFramebuffer()->bind(GL_READ_FRAMEBUFFER);
 }

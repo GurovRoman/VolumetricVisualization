@@ -30,6 +30,7 @@ target_sources(
         pipeline/passes/PostprocessPass.cpp
         pipeline/passes/DeferredShadingPass.cpp
         pipeline/passes/DeferredShadingPass.h
+        pipeline/passes/ShadowmapPass.cpp
         ui/Parameters.cpp
         ui/Parameters.h
         ui/GUI.cpp

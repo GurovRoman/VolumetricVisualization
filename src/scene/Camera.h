@@ -20,6 +20,8 @@ public:
 public:
     float fov {90.};
     float aspect_ratio {16. / 9};
+    bool perspective {true};
+
 
     float speed {3};
 

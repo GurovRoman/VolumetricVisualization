@@ -15,6 +15,13 @@ struct Volume {
 };
 
 
+struct Shadowmap {
+    sampler2DShadow depthTex;
+    mat4 VP;
+};
+
+
+uniform Shadowmap sunShadowmap;
 uniform Volume vol;
 
 
@@ -45,7 +52,7 @@ float f(const vec3 x) {
 
 float sample_density(const vec3 x) {
     if (vol.procedural)
-    return f(x) * vol.density_multiplier;
+        return f(x) * vol.density_multiplier;
     return texture(vol.density, x).r * vol.density_multiplier;
 }
 
@@ -63,4 +70,37 @@ float marchTransparency(vec3 begin, const vec3 end, const int samples) {
         acc_transparency -= opacity;
     }
     return exp(acc_transparency);
+}
+
+
+
+float calculateShadowFromMap(const vec3 pos, const Shadowmap map, const float bias) {
+    vec4 pos_proj = map.VP * vec4(pos, 1);
+    pos_proj = pos_proj / 2 + 0.5;
+
+    pos_proj.z -= bias * pos_proj.w;
+
+    float shadow_opacity = 0;
+
+    vec2 texelSize = 1.0 / textureSize(map.depthTex, 0);
+    /*for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <= 1; ++y) {
+            shadow_opacity += textureProj(map.depthTex, vec4(pos_proj.xy + vec2(x, y) * texelSize * pos_proj.w, pos_proj.zw));
+        }
+    }
+    shadow_opacity /= 9;*/
+
+    vec2 offset = vec2(greaterThan(fract(pos_proj.xy / pos_proj.w * 0.5), vec2(0.25)));
+    // mod
+    offset.y += offset.x;
+    // y ^= x in floating point
+    if (offset.y > 1.1)
+        offset.y = 0;
+    shadow_opacity = (textureProj(map.depthTex, vec4(pos_proj.xy + vec2(-1.5,  0.5) * texelSize * pos_proj.w, pos_proj.zw))
+                    + textureProj(map.depthTex, vec4(pos_proj.xy + vec2( 0.5,  0.5) * texelSize * pos_proj.w, pos_proj.zw))
+                    + textureProj(map.depthTex, vec4(pos_proj.xy + vec2(-1.5, -1.5) * texelSize * pos_proj.w, pos_proj.zw))
+                    + textureProj(map.depthTex, vec4(pos_proj.xy + vec2( 0.5, -1.5) * texelSize * pos_proj.w, pos_proj.zw))) * 0.25;
+
+    float pos_depth = pos_proj.z / pos_proj.w;
+    return pos_depth >= 1. ? 0 : shadow_opacity;
 }

@@ -49,10 +49,16 @@ void main() {
 
     vec3 ambient = albedo * hdrColor * 0.1;
 
-    float shadow = computeVolumeShadow(pos, -sunDirection);
+    float shadow = clamp(computeVolumeShadow(pos, -sunDirection) - calculateShadowFromMap(pos, sunShadowmap, 0), 0, 1);
 
-    vec3 diffuse = shadow * albedo * hdrColor * max(0, dot(-sunDirection, normal));
-    vec3 specular = shadow * specular_intensity * hdrColor * pow(max(0, dot(reflect(sunDirection, normal), normalize(cameraPosition - pos))), 4);
+    vec3 diffuse = albedo * hdrColor * max(0, dot(-sunDirection, normal));
+    vec3 specular = specular_intensity * hdrColor * pow(max(0, dot(reflect(sunDirection, normal), normalize(cameraPosition - pos))), 4);
 
-    color = vec4(ambient + diffuse + specular, 1);
+    // if the light hits face from behind, specular should be forced to 0
+    if (dot(-sunDirection, normal) <= 0) {
+        specular = vec3(0);
+    }
+
+    color = vec4(ambient + shadow * (diffuse + specular), 1);
+    //color = vec4(texture(sunShadowmap.depthTex, texCoord).rgb, 1);
 }

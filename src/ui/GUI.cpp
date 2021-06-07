@@ -30,7 +30,7 @@ void GUI::updateGUI() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     drawFrametime();
     drawMain();
 
@@ -60,7 +60,7 @@ void GUI::drawMain() {
         if (ImGui::BeginMenu("Create")) {
             for (const auto& mesh : Mesh::getMeshFileList()) {
                 if (ImGui::MenuItem((mesh + "##meshentry").c_str())) {
-                    scene_->getMeshes()->emplace_back(mesh);
+                    scene_->getMeshes()->push_back(std::make_shared<Mesh>(mesh));
                 }
             }
             for (const auto& volume : Volume::getVolumeFileList()) {
@@ -91,7 +91,7 @@ void GUI::drawMain() {
     ImGui::End();
 }
 
-void GUI::drawProperties(const std::string& name, Actor* actor, bool& open) {
+void GUI::drawProperties(const std::string& name, std::shared_ptr<Actor> actor, bool& open) {
     ImGui::Begin(("Property browser: " + name + "###propbrowse").c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::PushItemWidth(130);
@@ -111,7 +111,7 @@ void GUI::drawProperties(const std::string& name, Actor* actor, bool& open) {
 
     ImGui::Separator();
 
-    if (auto* volume = dynamic_cast<Volume*>(actor)) {
+    if (const auto& volume = std::dynamic_pointer_cast<Volume>(actor)) {
         ImGui::DragInt("Samples##volprop", &volume->samples, 1, 1, 100);
         ImGui::DragInt("Shadow samples", &volume->shadow_samples, 1, 0, 100);
         ImGui::DragInt("Scene shdw smpls", &volume->scene_shadow_samples, 1, 0, 100);
@@ -123,7 +123,7 @@ void GUI::drawProperties(const std::string& name, Actor* actor, bool& open) {
         volume->procedural = procedural;
     }
 
-    if (auto* mesh = dynamic_cast<Mesh*>(actor)) {
+    if (const auto& mesh = std::dynamic_pointer_cast<Mesh>(actor)) {
         ImGui::ColorEdit3("Color##meshprop", &mesh->solid_color[0]);
         ImGui::DragFloat("Specular Intensity##meshprop", &mesh->specular_intensity, 0.01f, 0, 2);
     }
@@ -132,30 +132,31 @@ void GUI::drawProperties(const std::string& name, Actor* actor, bool& open) {
 }
 
 void GUI::drawActorListWidget() {
-    static Actor* selection = nullptr;
+    static std::weak_ptr<Actor> selection;
     static std::string selection_name;
+    bool selection_valid = false;
     if (ImGui::CollapsingHeader("Object List")) {
         if (ImGui::BeginListBox("##actorlist")) {
             for (auto& mesh : *scene_->getMeshes()) {
                 std::ostringstream name("Mesh ", std::ios_base::app);
                 name << &mesh;
-                if (ImGui::Selectable(name.str().c_str(), selection == &mesh)) {
-                    selection = &mesh;
+                if (ImGui::Selectable(name.str().c_str(), !selection.owner_before(mesh) && !mesh.owner_before(selection))) {
+                    selection = mesh;
                     selection_name = name.str();
                 }
             }
-            if (ImGui::Selectable("Volume", selection == &*scene_->getVolumes())) {
-                selection = &*scene_->getVolumes();
+            if (ImGui::Selectable("Volume", !selection.owner_before(scene_->getVolumes()) && !scene_->getVolumes().owner_before(selection))) {
+                selection = scene_->getVolumes();
                 selection_name = "Volume";
             }
             ImGui::EndListBox();
         }
     }
-    if (selection) {
+    if (!selection.expired()) {
         bool open = true;
-        drawProperties(selection_name, selection, open);
+        drawProperties(selection_name, selection.lock(), open);
         if (!open) {
-            selection = nullptr;
+            selection = {};
         }
     }
 }

@@ -28,7 +28,7 @@ void OpaquePass::run() {
 
     //// Opaque Pass
     for (const auto& mesh : *meshes_) {
-        mesh_program_.setUniformVec4("solidColorSpec", glm::vec4{mesh.solid_color, mesh.specular_intensity}[0]);
-        mesh.draw();
+        mesh_program_.setUniformVec4("solidColorSpec", glm::vec4{mesh->solid_color, mesh->specular_intensity}[0]);
+        mesh->draw();
     }
 }

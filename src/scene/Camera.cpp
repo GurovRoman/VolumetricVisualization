@@ -13,7 +13,12 @@ glm::vec3 Camera::GetCameraPixelPosition(int x, int y, int pixel_width, int pixe
 }
 
 glm::mat4x4 Camera::getViewProjMatrix() const {
-    auto proj_mat = glm::perspective(glm::radians(fov), aspect_ratio, 0.2f, 50.f);
+    glm::mat4 proj_mat;
+    if (perspective) {
+        proj_mat = glm::perspective(glm::radians(fov), aspect_ratio, 0.2f, 50.f);;
+    } else {
+        proj_mat = glm::ortho<float>(-5, 5, -5, 5, -5, 5);
+    }
     return proj_mat * glm::inverse(tf.getTransformMatrix());
 }
 

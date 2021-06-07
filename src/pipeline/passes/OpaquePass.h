@@ -21,7 +21,7 @@ public:
     OpaquePass();
     void run() override;
 
-    inline void setMeshes(const std::shared_ptr<std::vector<Mesh>>& meshes) {
+    inline void setMeshes(const std::shared_ptr<std::vector<std::shared_ptr<Mesh>>>& meshes) {
         meshes_ = meshes;
     }
 
@@ -35,7 +35,7 @@ private:
     Framebuffer gbuffer_fb_;
     std::shared_ptr<GBuffer> gbuffer_ {std::make_shared<GBuffer>()};
 
-    std::shared_ptr<std::vector<Mesh>> meshes_;
+    std::shared_ptr<std::vector<std::shared_ptr<Mesh>>> meshes_;
 };
 
 

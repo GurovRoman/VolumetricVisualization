@@ -20,7 +20,7 @@ private:
     void drawFrametime();
     void drawMain();
     void drawActorListWidget();
-    void drawProperties(const std::string& name, Actor* actor, bool& open);
+    void drawProperties(const std::string& name, std::shared_ptr<Actor> actor, bool& open);
 
     const Scene* scene_ {nullptr};
 };

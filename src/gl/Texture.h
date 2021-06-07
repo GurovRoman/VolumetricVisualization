@@ -2,7 +2,6 @@
 #include <GLcommon.h>
 
 
-
 class Texture {
 public:
     Texture(GLenum target, GLint internal_format, GLenum format, GLenum type, GLsizei width = -1, GLsizei height = -1, const void *pixels = nullptr);

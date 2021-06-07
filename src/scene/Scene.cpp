@@ -22,7 +22,7 @@ Scene::Scene() {
     Parameters::get().at<float>("sunIntensity") = 1.;
     Parameters::get().at<float>("whitePoint") = 1.;
 
-    meshes_->emplace_back("1M_Cube_Chamfer_Internal.OBJ");
+    meshes_->push_back(std::make_shared<Mesh>("1M_Cube_Chamfer_Internal.OBJ"));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
