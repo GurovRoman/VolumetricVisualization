@@ -23,8 +23,8 @@ add_custom_target(
         ${CMAKE_CURRENT_BINARY_DIR}/shaders
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/models
         ${CMAKE_CURRENT_BINARY_DIR}/models
-        #COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/volumes
-        #${CMAKE_CURRENT_BINARY_DIR}/volumes
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/volumes
+        ${CMAKE_CURRENT_BINARY_DIR}/volumes
 )
 
 add_dependencies(VolumetricRayMarching resource)
